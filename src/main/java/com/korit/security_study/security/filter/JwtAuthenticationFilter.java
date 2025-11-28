@@ -70,5 +70,4 @@ public class JwtAuthenticationFilter implements Filter {
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }
-
 }

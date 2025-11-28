@@ -80,4 +80,14 @@
         values
             (0, #{username}, #{password}, #{email}, now(), null);
     </insert>
+
+    <update id="updatePassword">
+        update
+            user_tb
+        set
+            password = #{password},
+            update_dt = now()
+        where
+            user_id = #{userId}
+    </update>
 </mapper>
