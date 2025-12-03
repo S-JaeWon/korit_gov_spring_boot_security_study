@@ -1,6 +1,8 @@
 package com.korit.security_study.config;
 
 import com.korit.security_study.security.filter.JwtAuthenticationFilter;
+import com.korit.security_study.security.handler.OAuth2SuccessHandler;
+import com.korit.security_study.service.OAuth2PrincipalService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +27,12 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Autowired
+    private OAuth2PrincipalService oAuth2PrincipalService;
+
+    @Autowired
+    private OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -67,9 +75,14 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/auth/signup", "/auth/signin").permitAll();
+            auth.requestMatchers("/auth/signup", "/auth/signin", "/oauth2/**").permitAll();
             auth.anyRequest().authenticated();
         });
+
+        http.oauth2Login(
+                oauth2 -> oauth2.userInfoEndpoint(
+                                userInfo -> userInfo.userService(oAuth2PrincipalService))
+                        .successHandler(oAuth2SuccessHandler));
 
         return http.build();
     }
